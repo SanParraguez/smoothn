@@ -2,6 +2,7 @@
 """
 Santiago Parraguez Cerda
 University of Chile - 2020
+v1.1
 
 z = smoothn(y)
 
@@ -19,15 +20,18 @@ from scipy.ndimage.morphology import distance_transform_edt
 # ==============================
 def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, rbst=False) -> np.ndarray:
     """
+    Fast smooths an array of data based on the cosine discrete transform. Allows to choose the smoothing parameter,
+    or calculate it using a GCVscore. Also it implements a robust iteration (False by default) to ignore outlier points.
 
-    :param y:
-    :param s:
-    :param tolz:
-    :param z0:
-    :param w:
+    :param y: data to be smoothed and filled
+    :type y: np.ma.masked_array or np.ndarray
+    :param s: smoothing parameter, calculated automatically if not provided to minimize gcv score
+    :param tolz: tolerance of iteration over z (prediction of data)
+    :param z0: initial guess for z, calculated with nearest neighbor if not provided
+    :param w: weights array, if not provided assumes all data has the same confidence
     :param di:
-    :param rbst:
-    :return:
+    :param bool rbst: indicates if the robust iteration is executed
+    :return: gives the smoothed gridded data, with missing values filled with the prediction done
     """
     # Create MaskedArray in case it contains (NaN, Inf)
     y = _to_masked(y)
@@ -101,7 +105,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, rbst=False) -> np.nd
 
             # Estimate value of s
             if isauto:
-                s = minimize(gcv_score, x0=np.array(1.0),
+                s = minimize(_gcv_score, x0=np.array(1.0),
                              args=(y, w_tot, n, nf, dcty, lamb, aow), bounds=[s_lim]).x
                 gamm = 1 / (1 + s * lamb ** 2)
 
@@ -122,7 +126,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, rbst=False) -> np.nd
 
     return z
 
-def gcv_score(s, y, w_tot, n, nf, dcty, lamb, aow=None) -> float:
+def _gcv_score(s, y, w_tot, n, nf, dcty, lamb, aow=None) -> float:
     """
     Calculates the Generalised cross-validation (GCV) score based on the weights used.
 
