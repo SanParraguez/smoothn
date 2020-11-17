@@ -25,11 +25,11 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, rbst=False) -> np.nd
 
     :param y: data to be smoothed and filled
     :type y: np.ma.masked_array or np.ndarray
-    :param s: smoothing parameter, calculated automatically if not provided to minimize gcv score
-    :param tolz: tolerance of iteration over z (prediction of data)
-    :param z0: initial guess for z, calculated with nearest neighbor if not provided
-    :param w: weights array, if not provided assumes all data has the same confidence
-    :param di:
+    :param float s: smoothing parameter, calculated automatically if not provided to minimize gcv score
+    :param float tolz: tolerance of iteration over z (prediction of data)
+    :param np.ndarray z0: initial guess for z, calculated with nearest neighbor if not provided
+    :param np.ndarray w: weights array, if not provided assumes all data has the same confidence
+    :param tuple di: grid dimensions, assumed regular if not given
     :param bool rbst: indicates if the robust iteration is executed
     :return: gives the smoothed gridded data, with missing values filled with the prediction done
     """
