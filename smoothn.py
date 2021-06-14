@@ -2,6 +2,7 @@
 """
 Santiago Parraguez Cerda
 University of Chile - 2020
+santiago.parraguez@ug.uchile.cl
 v1.1
 
 z = smoothn(y)
