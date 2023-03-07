@@ -22,7 +22,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False):
     ----------
     y : np.ma.MaskedArray or np.ndarray
         Data to be smoothed and filled.
-    s : float
+    s : None or float
         Smoothing parameter, calculated automatically if not provided to minimize gcv score.
     tolz : float
         Tolerance of iteration over z (prediction of data).
