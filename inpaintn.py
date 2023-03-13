@@ -12,7 +12,7 @@ from .smoothn import smoothn
 
 # ================================================================================================
 
-def inpaintn(data, s=None, structure=None, robust=False, max_size=5, grid=None):
+def inpaintn(data, s=None, structure=None, max_size=5,  robust=False, **kwargs):
     """
     Fill missing values with a smoothn algorithm, based on the cosine discrete transform.
     Returns the filled array.
@@ -25,12 +25,10 @@ def inpaintn(data, s=None, structure=None, robust=False, max_size=5, grid=None):
         Smoothing parameter, calculated automatically if not provided to minimize GCV score.
     structure : int or tuple
         Structure to count empty spaces. See scipy.ndimage.label function.
-    robust : bool
-        Indicates if a robust iteration is executed to avoid outliers.
     max_size : int
         Maximum number of pixels in hole to be filled.
-    grid : tuple, list
-        Grid dimensions, assumed regular [np.ones(data.ndim)] if not given.
+    robust : bool
+        Indicates if a robust iteration is executed to avoid outliers.
     """
     if structure is None:
         structure = np.ones(tuple([3]*data.ndim), dtype=np.int16)
@@ -40,7 +38,7 @@ def inpaintn(data, s=None, structure=None, robust=False, max_size=5, grid=None):
     mask_clean = mask_size[labeled]
 
     z = data.copy()
-    z[mask_clean] = smoothn(data, s, robust=robust, di=grid)[mask_clean]
+    z[mask_clean] = smoothn(data, s=s, robust=robust, **kwargs)[mask_clean]
 
     return z
 
