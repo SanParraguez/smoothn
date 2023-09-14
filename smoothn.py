@@ -232,7 +232,7 @@ def create_lambda(y, dx):
     d = y.ndim
     lamb = np.zeros(y.shape)
     for i in range(d):
-        siz0 = np.ones(d, dtype=np.int)
+        siz0 = np.ones(d, dtype=int)
         siz0[i] = y.shape[i]
         lamb += (2 - 2 * np.cos(np.pi * np.arange(y.shape[i]).reshape(siz0) / y.shape[i])) / dx[i] ** 2
     return lamb

@@ -19,8 +19,8 @@ for large geophysical datasets: Application to global satellite soil moisture ob
 Environmental Modelling & Software, 2012; 30:139-142.
 """
 __name__ = 'smoothn'
-__version__ = '1.1'
-__release__ = '2023-03'
+__version__ = '1.1.1'
+__release__ = '2023-09'
 
 __all__ = [
     'smoothn',
