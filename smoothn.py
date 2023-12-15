@@ -7,7 +7,7 @@ __all__ = [
 ]
 # ====== IMPORT LIBRARIES ======
 import numpy as np
-from scipy.fftpack import dctn, idctn
+from scipy.fft import dctn, idctn
 from scipy.optimize import minimize
 from scipy.ndimage.morphology import distance_transform_edt
 
@@ -125,7 +125,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False):
 
             # Check jump, if it's less than tolerance iterations are terminated
             res = z0-z
-            miss = isweight * np.linalg.norm(res, 2) / np.linalg.norm(z, 2)
+            miss = isweight * np.sqrt(np.sum(res ** 2)) / np.sqrt(np.sum(z ** 2))
             z0 = z
 
         if robust:
@@ -177,11 +177,11 @@ def gcv_score(s, y, w_tot, n, nf, dcty, lamb, aow=None):
 
     if aow > 0.9:
         a = dcty * (gamm - 1)
-        rss = np.linalg.norm(a, 2) ** 2
+        rss = np.sum(a ** 2)
     else:
         y_hat = idctn(dcty * gamm, norm='ortho')
         dy = y.compressed() - y_hat[~y.mask]
-        rss = np.linalg.norm(np.sqrt(w_tot[~y.mask]) * dy, 2) ** 2
+        rss = np.sum((np.sqrt(w_tot[~y.mask]) * dy) ** 2)
 
     trh = gamm.sum()
     gcv = rss / nf / (1 - trh / n) ** 2
@@ -210,7 +210,7 @@ def to_masked(y):
 def create_lambda(y, dx):
     """
     Creates a Lambda tensor for the `smoothn` function. It contains the eigenvalues of the difference matrix used in
-    the penalized least squares process.
+    the penalized least-squares process.
 
     Parameters
     ----------
