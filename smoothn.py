@@ -6,13 +6,15 @@ __all__ = [
     'smoothn'
 ]
 # ====== IMPORT LIBRARIES ======
+
 import numpy as np
 from scipy.fft import dctn, idctn
 from scipy.optimize import minimize
 from scipy.ndimage.morphology import distance_transform_edt
 
+
 # ================================================================================================
-def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False):
+def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False, workers=1):
     """
     Fast smooths an array of data based on the cosine discrete transform. Allows to choose the smoothing parameter,
     or calculate it using a GCVscore.
@@ -112,7 +114,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False):
 
             # Calculate discrete cosine transform
             xdc = w_tot * (y_fill - z) + z
-            dcty = dctn(xdc, norm='ortho')
+            dcty = dctn(xdc, norm='ortho', workers=workers)
 
             # Estimate value of s
             if isauto:
@@ -121,7 +123,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False):
                 gamm = 1 / (1 + s * lamb ** 2)
 
             # Calculate inverse discrete cosine transform
-            z = idctn(gamm * dcty, norm='ortho')
+            z = idctn(gamm * dcty, norm='ortho', workers=workers)
 
             # Check jump, if it's less than tolerance iterations are terminated
             res = z0-z
@@ -136,6 +138,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False):
             break
 
     return z
+
 
 # ================================================================================================
 def gcv_score(s, y, w_tot, n, nf, dcty, lamb, aow=None):
@@ -187,6 +190,7 @@ def gcv_score(s, y, w_tot, n, nf, dcty, lamb, aow=None):
     gcv = rss / nf / (1 - trh / n) ** 2
     return gcv
 
+
 # ================================================================================================
 def to_masked(y):
     """
@@ -205,6 +209,7 @@ def to_masked(y):
     if not np.ma.isMaskedArray(y):
         y = np.ma.masked_invalid(y)
     return y
+
 
 # ================================================================================================
 def create_lambda(y, dx):
@@ -237,6 +242,7 @@ def create_lambda(y, dx):
         lamb += (2 - 2 * np.cos(np.pi * np.arange(y.shape[i]).reshape(siz0) / y.shape[i])) / dx[i] ** 2
     return lamb
 
+
 # ================================================================================================
 def initz(y):
     """
@@ -267,6 +273,7 @@ def initz(y):
     else:
         z0 = y
     return z0
+
 
 # ================================================================================================
 def studentized_residuals(y, z, mask, s):
@@ -304,6 +311,7 @@ def studentized_residuals(y, z, mask, s):
     u = r / (1.4826 * mad * np.sqrt(1 - h))
 
     return u
+
 
 # ================================================================================================
 def biweight(u, c=4.685):
