@@ -14,7 +14,9 @@ from scipy.ndimage.morphology import distance_transform_edt
 
 
 # ================================================================================================
-def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False, workers=1):
+def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None,
+            robust=False, max_iter=1000, robust_iter=3, workers=1,
+            return_s=False):
     """
     Fast smooths an array of data based on the cosine discrete transform. Allows to choose the smoothing parameter,
     or calculate it using a GCVscore.
@@ -36,6 +38,15 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False, worker
         Grid dimensions, assumed regular if not given
     robust : bool
         Indicates if the robust iteration is executed
+    workers : int
+        Number of workers assigned to Scipy functions `fft.dctn` and `fft.idctn`
+    max_iter : int
+        Maximum number of iterations. Default: 1,000
+    robust_iter : int
+        Number of robust iterations to perform. Notice that the max_iter value works inside the number of robust
+        iterations, leading to a maximum of `robust_iter * max_iter` iterations. Default: 3
+    return_s : bool
+        Indicates if s value should be returned. Useful for fine-tuning after calculation.
 
     Returns
     -------
@@ -98,11 +109,10 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False, worker
     z0 = z
 
     y_fill = y.filled(0.0)  # Assign arbitrary value to missing data
-    # ===== START ITERATION =====
-    # Set limits of iterations
-    n_robust_iter = 3
-    max_iter = 1000
-    for i in range(n_robust_iter):
+
+    # ===== START ITERATIONS =====
+
+    for i in range(robust_iter):
 
         aow = np.sum(w_tot)/n
         miss = np.inf
@@ -137,7 +147,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None, robust=False, worker
         else:
             break
 
-    return z
+    return z if not return_s else z, s
 
 
 # ================================================================================================

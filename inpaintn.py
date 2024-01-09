@@ -37,12 +37,12 @@ def inpaintn(data, s=None, structure=None, max_size=None,  robust=False, **kwarg
     if isinstance(data, np.ndarray):
         data = np.ma.masked_invalid(data)
 
+    # copy array to avoid modifications
     z = data.copy()
 
     # fill complete array
     if max_size in [None, 0, -1]:
-
-        z[data.mask] = smoothn(data, s=s, robust=robust, **kwargs)[data.mask]
+        mask_clean = data.mask
 
     # fill small holes with max_size
     elif max_size > 0:
@@ -55,12 +55,15 @@ def inpaintn(data, s=None, structure=None, max_size=None,  robust=False, **kwarg
         mask_size = sizes <= max_size
         mask_clean = mask_size[labeled]
 
-        z[mask_clean] = smoothn(data, s=s, robust=robust, **kwargs)[mask_clean]
-
     # raise otherwise
     else:
         raise ValueError(f'max_size should be either 0 or a positive int, found {max_size}')
 
-    return z
-
-
+    # update z and return
+    if kwargs.get('return_s', False):
+        z0, s = smoothn(data, s=s, robust=robust, **kwargs)
+        z[mask_clean] = z0[mask_clean]
+        return z, s
+    else:
+        z[mask_clean] = smoothn(data, s=s, robust=robust, **kwargs)[mask_clean]
+        return z
