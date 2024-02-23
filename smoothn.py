@@ -147,7 +147,7 @@ def smoothn(y, s=None, tolz=1e-3, z0=None, w=None, di=None,
         else:
             break
 
-    return z if not return_s else z, s
+    return z if not return_s else (z, s)
 
 
 # ================================================================================================
